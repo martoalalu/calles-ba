@@ -31,11 +31,11 @@ calles$nomoficial <- toupper(calles$nomoficial)
 
 calles_glosario <- left_join(calles, glosario, by = c("nomoficial"="calle_01"))
 
+
 #Extraemos el año de la ordenanza / ley a través del cual se dio nombre a esa calle
 calles_glosario <- calles_glosario %>% 
-  mutate(anio_calle=str_extract(calle_02, pattern = '\\d{4}'))
-
-
+  mutate(anio_calle=str_extract(calle_02, pattern = '\\d{4}')) %>%
+  select(codigo, nomoficial, calle_02, anio_calle)
 
 
 # Traemos el libro con la descripción de las calles
@@ -60,12 +60,18 @@ df_bio<-rename(df_bio,calle=matrix.unlist.response_split...ncol...length.respons
 #Spliteamos para quedarnos con una columna que tenga el nombre de calle
 
 bio<- cSplit(df_bio, "calle", sep="\n")
-bio$calle_01<-chartr('ÁÉÍÓÚÜ','AEIOUU',bio$calle_01)
-
-View(bio[1:20])
+bio$calle_1<-chartr('ÁÉÍÓÚÜ','AEIOUU',bio$calle_1)
 
 
+bio <- bio %>% 
+  cSplit("calle_1", sep="-") %>% 
+  select(calle_1_1,calle_2) %>% 
+  rename(calle=calle_1_1,
+         descripcion=calle_2)
+
+calles_glosario <- left_join(calles_glosario,bio,by=c("nomoficial"="calle"))
+  
 
 
 
-str_locate(bio$calle_01, "-")
+
