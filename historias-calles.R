@@ -73,6 +73,8 @@ bio <- bio %>%
   rename(calle=calle_1_1,
          descripcion=calle_2)
 
+bio <- cSplit(callejero,"descripcion", sep=":")
+
 
 calles_glosario <- left_join(calles_glosario,bio,by=c("nomoficial"="calle"))
   
@@ -84,3 +86,21 @@ ggplot()+
 callejero <- left_join(callejero,calles_glosario)
 callejero$anio_calle <- as.numeric(callejero$anio_calle)
 
+# NLP
+
+library(tm)
+
+
+corpus <- callejero$descripcion
+myCorpus = VCorpus(VectorSource(corpus))
+myCorpus = tm_map(myCorpus, content_transformer(tolower))
+myCorpus = tm_map(myCorpus, removePunctuation)
+myCorpus = tm_map(myCorpus, removeNumbers)
+myCorpus = tm_map(myCorpus, removeWords, stopwords(kind = "es"))
+myDTM = DocumentTermMatrix(myCorpus, control = list(minWordLength = 1))
+m = as.matrix(myDTM)
+
+x <-as.data.frame(m) 
+y <- colSums(x)
+z <- data.frame(as.list(y))
+categorias <- as.data.frame(t(as.matrix(z)))
