@@ -65,7 +65,9 @@ df_bio<-rename(df_bio,calle=matrix.unlist.response_split...ncol...length.respons
 #Spliteamos para quedarnos con una columna que tenga el nombre de calle
 
 bio<- cSplit(df_bio, "calle", sep="\n")
+bio$calle_2 <- toupper(bio$calle_2)
 bio$calle_1<-chartr('ÁÉÍÓÚÜ','AEIOUU',bio$calle_1)
+bio$calle_2<-chartr('ÁÉÍÓÚÜÑ','AEIOUUN',bio$calle_2)
 
 bio <- bio %>% 
   cSplit("calle_1", sep="-") %>% 
@@ -73,8 +75,9 @@ bio <- bio %>%
   rename(calle=calle_1_1,
          descripcion=calle_2)
 
-bio <- cSplit(callejero,"descripcion", sep=":")
-
+bio <- cSplit(bio,"descripcion", sep=":")
+bio <- select(bio,calle,descripcion_01, descripcion_02)
+bio$clave <- gsub("([A-Za-z]+).*", "\\1", bio$descripcion_02)
 
 calles_glosario <- left_join(calles_glosario,bio,by=c("nomoficial"="calle"))
   
