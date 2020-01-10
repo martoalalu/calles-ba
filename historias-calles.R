@@ -80,14 +80,19 @@ bio <- select(bio,calle,descripcion_01, descripcion_02)
 bio$clave <- gsub("([A-Za-z]+).*", "\\1", bio$descripcion_02)
 
 calles_glosario <- left_join(calles_glosario,bio,by=c("nomoficial"="calle"))
-  
+calles_glosario$codigo <- as.numeric(calles_glosario$codigo)
+
 #Traemos el archvivo geográfico con las calles
 callejero <- read_sf("http://cdn.buenosaires.gob.ar/datosabiertos/datasets/calles/callejero-ba.geojson")
 ggplot()+
   geom_sf(data=callejero)
 
-callejero <- left_join(callejero,calles_glosario)
+callejero <- left_join(callejero,calles_glosario,by=c("codigo"="codigo"))
 callejero$anio_calle <- as.numeric(callejero$anio_calle)
+
+sum(is.na(callejero$anio_calle))
+
+write_sf(callejero,"C:/Users/20332842324/Documents/GitHub/calles-ba/data/callejero.shp")
 
 # NLP
 
